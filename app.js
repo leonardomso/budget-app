@@ -1,6 +1,5 @@
 
 var budgetController = (function() {
-
     const Expense = function(id, description, value) {
         this.id = id;
         this.description = description;
@@ -15,24 +14,55 @@ var budgetController = (function() {
 
     let data = {
         allItems: {
-            expenses: [],
-            incomes: []
+            exp: [],
+            inc: []
         },
         total: {
-            expenses: 0,
-            incomes: 0
+            exp: 0,
+            inc: 0
         }
     };
+
+    return {
+        addItem: function(type, des, val) {
+            let newItem, ID;
+
+            // Create new ID
+            if(data.allItems[type].length > 0) {
+                ID = data.allItems[type][data.allItems[type].length - 1].id + 1;
+            } else {
+                ID = 0;
+            }
+
+
+            // Create new item base on 'inc' or 'exp' type.
+            if(type === 'exp') {
+                newItem = new Expense(ID, des, val);
+            } else if (type === 'inc') {
+                newItem = new Income(ID, des, val);
+            }
+
+            // Push it into our data structure.
+            data.allItems[type].push(newItem);
+
+            return newItem;
+        },
+
+        testing: function() {
+            console.log(data);
+        }
+    }
 
 })();
 
 var UIController = (function() {
-
     const DOMStrings = {
         inputType: '.add__type',
         inputDescription: '.add__description',
         inputValue: '.add__value',
-        inputButton: '.add__btn'
+        inputButton: '.add__btn',
+        incomeContainer: '.income__list',
+        expensesContainer: '.expenses__list'
     };
 
     return {
@@ -44,6 +74,48 @@ var UIController = (function() {
             };
         },
 
+        addListItem: function(obj, type) {
+            let html, newHtml, element;
+
+            // 1. Create HTML string with placeholder text.
+            if(type === 'inc') {
+
+                element = DOMStrings.incomeContainer;
+
+                html = `<div class="item clearfix" id="income-%id%">
+                            <div class="item__description">%description%</div>
+                                <div class="right clearfix">
+                                    <div class="item__value">%value%</div>
+                                    <div class="item__delete">
+                                        <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
+                                    </div>
+                                </div>
+                        </div>`;
+            } else if(type === 'exp') {
+
+                element = DOMStrings.expensesContainer;
+
+                html = `<div class="item clearfix" id="expense-%id%">
+                            <div class="item__description">%description%</div>
+                                <div class="right clearfix">
+                                    <div class="item__value">%value%</div>
+                                    <div class="item__percentage">21%</div>
+                                    <div class="item__delete">
+                                        <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
+                                    </div>
+                                </div>
+                        </div>`;
+            }
+
+            // 2. Replace the placeholder with some actual data.
+            newHtml = html.replace('%id%', obj.id);
+            newHtml = newHtml.replace('%description%', obj.description);
+            newHtml = newHtml.replace('%value%', obj.value);
+
+            // 3. Insert HTML into the DOM.
+            document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
+        },
+
         getDOMStrings: function() {
             return DOMStrings;
         }
@@ -52,7 +124,6 @@ var UIController = (function() {
 })();
 
 var controller = (function(budgetCtrl, UICtrl) {
-
     const setupEventListeners = () => {
         const DOM = UICtrl.getDOMStrings();
 
@@ -69,12 +140,16 @@ var controller = (function(budgetCtrl, UICtrl) {
 
     const ctrlAddItem = () => {
 
+        let input, newItem;
+
         // 1. Get the filed input data.
-        const input = UICtrl.getInput();
+        input = UICtrl.getInput();
 
         // 2. Add the item to the budget controller.
+        newItem = budgetCtrl.addItem(input.type, input.description, input.value);
 
         // 3. Add the item to the UI.
+        UICtrl.addListItem(newItem, input.type);
 
         // 4. Calculate the budget.
 
