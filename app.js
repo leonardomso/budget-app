@@ -235,12 +235,15 @@ var controller = (function(budgetCtrl, UICtrl) {
 
     return {
         init: function() {
+            console.log('Application has started.');
+
             UICtrl.displayBudget({
                 budget: 0,
                 totalIncome: 0,
                 totalExpenses: 0,
                 percentage: -1
             });
+            
             setupEventListeners();
         }
     };
