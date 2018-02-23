@@ -57,6 +57,19 @@ var budgetController = (function() {
             return newItem;
         },
 
+        deleteItem: function(type, id) {
+            var ids, index;
+
+            ids = data.allItems[type].map((current) => current.id);
+
+            index = ids.indexOf(id);
+
+            if(index !== -1) {
+                // First the position of the element, and then how many elements.
+                data.allItems[type].splice(index, 1)
+            }
+        },
+
         calculateBudget: function() {
             // 1. Calculate total incomes and expenses.
             calculateTotal('inc');
@@ -101,7 +114,8 @@ var UIController = (function() {
         budgetLabel: '.budget__value',
         incomeLabel: '.budget__income--value',
         expensesLabel: '.budget__expenses--value',
-        percentageLabel: '.budget__expenses--percentage'
+        percentageLabel: '.budget__expenses--percentage',
+        container: '.container'
     };
 
     return {
@@ -199,6 +213,8 @@ var controller = (function(budgetCtrl, UICtrl) {
                 ctrlAddItem();
             }
         });
+
+        document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
     };
 
     const updateBudget = () => {
@@ -233,6 +249,26 @@ var controller = (function(budgetCtrl, UICtrl) {
         }
     };
 
+    const ctrlDeleteItem = (event) => {
+        let itemID, splitID, type, ID;
+
+        itemID = event.target.parentNode.parentNode.parentNode.parentNode.id;
+
+        if(itemID) {
+            splitID = itemID.split('-');
+            type = splitID[0];
+            ID = parseInt(splitID[1]);
+
+            // 1. Delete the item from the data structure.
+            budgetCtrl.deleteItem(type, ID);
+
+            // 2. Delete the item from the UI.
+
+
+            // 3. Update and show the new budget.
+        }
+    };
+
     return {
         init: function() {
             console.log('Application has started.');
@@ -243,7 +279,7 @@ var controller = (function(budgetCtrl, UICtrl) {
                 totalExpenses: 0,
                 percentage: -1
             });
-            
+
             setupEventListeners();
         }
     };
