@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/leonardomso/budget-app#readme",
   "dependencies": {
-    "node-sass": "^4.7.2"
+    "node-sass": "^7.0.0"
   }
 }
